@@ -214,7 +214,7 @@ class DevicePreview extends StatefulWidget {
           countryCode: countryCode,
         );
       },
-      orElse: () => WidgetsBinding.instance.window.locale,
+      orElse: () => WidgetsBinding?.instance.window.locale,
     );
   }
 
