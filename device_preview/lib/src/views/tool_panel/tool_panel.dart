@@ -11,9 +11,13 @@ class ToolPanel extends StatelessWidget {
   /// stays visible on one side of the parent layout.
   const ToolPanel({
     Key? key,
+    required this.title,
     required this.slivers,
     this.isModal = false,
   }) : super(key: key);
+
+  /// The title of the panel.
+  final String title;
 
   /// Indicates whether the panel is shown modally as a new page, or if it
   /// stays visible on one side of the parent layout.
@@ -41,6 +45,7 @@ class ToolPanel extends StatelessWidget {
               return Theme(
                 data: toolbarTheme.asThemeData(),
                 child: _ToolPanel(
+                  title: title,
                   sections: slivers,
                   isModal: isModal,
                   onClose: () {
@@ -59,11 +64,12 @@ class ToolPanel extends StatelessWidget {
 class _ToolPanel extends StatelessWidget {
   const _ToolPanel({
     Key? key,
+    required this.title,
     required this.isModal,
     required this.onClose,
     required this.sections,
   }) : super(key: key);
-
+  final String title;
   final bool isModal;
   final VoidCallback onClose;
   final List<Widget> sections;
@@ -78,7 +84,7 @@ class _ToolPanel extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Runtime Inspector',
+          title,
           style: theme.textTheme.headline6?.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -109,16 +115,6 @@ class _ToolPanel extends StatelessWidget {
         children: [
           CustomScrollView(
             slivers: sections,
-          ),
-          IgnorePointer(
-            ignoring: isEnabled,
-            child: AnimatedOpacity(
-              opacity: isEnabled ? 0 : 1,
-              duration: const Duration(milliseconds: 200),
-              child: Container(
-                color: const Color(0xCC000000),
-              ),
-            ),
           ),
         ],
       ),

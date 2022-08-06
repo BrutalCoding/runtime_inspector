@@ -94,6 +94,18 @@ class SettingsSection extends StatelessWidget {
               );
             },
           ),
+        ListTile(
+          title: const Text('Reset to default settings'),
+          subtitle: const Text(
+            'Reloads to the default settings instantly.',
+          ),
+          onTap: () async {
+            final provider = context.read<DevicePreviewStore>();
+            await provider.storage.resetToDefaultPreferences();
+            provider.state = const DevicePreviewState.notInitialized();
+            provider.initialize();
+          },
+        ),
       ],
     );
   }

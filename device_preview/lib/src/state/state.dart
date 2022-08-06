@@ -1,9 +1,9 @@
 import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../utilities/json_converters.dart';
-import 'package:flutter/foundation.dart';
 
 part 'state.freezed.dart';
 part 'state.g.dart';
@@ -59,6 +59,10 @@ class DevicePreviewData with _$DevicePreviewData {
 
     /// Indicate whether the mode is currently dark.
     @Default(false) bool isDarkMode,
+
+    /// Force to rebuild the preview widget tree, including the actual app.
+    /// The value gets reset back to [false] right after the frame has been rebuilt.
+    @Default(false) bool forceRefreshUI,
 
     /// Indicate whether texts are forced to bold.
     @Default(false) bool boldText,

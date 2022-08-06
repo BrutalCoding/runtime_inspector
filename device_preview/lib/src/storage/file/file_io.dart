@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_preview/src/locales/default_locales.dart';
 import 'package:device_preview/src/state/state.dart';
+import 'package:device_preview/src/state/store.dart';
+import 'package:flutter/widgets.dart';
 
 import '../storage.dart';
 
@@ -17,9 +20,12 @@ class FileDevicePreviewStorage extends DevicePreviewStorage {
 
   /// Save the current preferences.
   @override
-  Future<void> save(DevicePreviewData data) async {
+  Future<void> save(
+    DevicePreviewData data, {
+    bool overwriteIfExists = false,
+  }) async {
     _saveData = data;
-    _saveTask ??= _save();
+    _saveTask ??= _save(overwriteExisting: overwriteIfExists);
     await _saveTask;
   }
 
@@ -35,11 +41,34 @@ class FileDevicePreviewStorage extends DevicePreviewStorage {
 
   DevicePreviewData? _saveData;
 
-  Future _save() async {
+  Future _save({
+    required bool overwriteExisting,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    if (_saveData != null) {
+    if (overwriteExisting || _saveData != null) {
       await File(filePath).writeAsString(jsonEncode(_saveData!.toJson()));
     }
     _saveTask = null;
+  }
+
+  @override
+
+  /// Not supported on this platform.
+  Future<void> clearAllDataExceptForRuntimeInspector() => Future.value();
+
+  @override
+  Future<void> resetToDefaultPreferences() async {
+    final defaultLocale = basicLocaleListResolution(
+      WidgetsBinding.instance.window.locales,
+      defaultAvailableLocales.map((x) => x.locale).toList(),
+    ).toString();
+    final data = await load();
+    if (data == null) return Future.value();
+    await save(
+      DevicePreviewData(
+        locale: defaultLocale,
+        customDevice: DevicePreviewStore.defaultCustomDevice,
+      ),
+    );
   }
 }

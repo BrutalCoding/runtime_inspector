@@ -68,6 +68,7 @@ class _DervicePreviewLargeLayoutState extends State<DervicePreviewLargeLayout> {
                       return [
                         MaterialPageRoute(
                           builder: (context) => ToolPanel(
+                            title: 'Runtime Inspector',
                             slivers: widget.slivers,
                           ),
                         ),

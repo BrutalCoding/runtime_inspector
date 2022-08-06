@@ -9,6 +9,7 @@ import 'package:device_preview/src/utilities/assert_inherited_media_query.dart';
 import 'package:device_preview/src/utilities/media_query_observer.dart';
 import 'package:device_preview/src/views/theme.dart';
 import 'package:device_preview/src/views/tool_panel/sections/accessibility.dart';
+import 'package:device_preview/src/views/tool_panel/sections/app.dart';
 import 'package:device_preview/src/views/tool_panel/sections/device.dart';
 import 'package:device_preview/src/views/tool_panel/sections/settings.dart';
 import 'package:device_preview/src/views/tool_panel/sections/system.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../device_preview.dart' as device_preview;
 import 'locales/default_locales.dart';
 import 'utilities/screenshot.dart';
 import 'views/large.dart';
@@ -112,6 +114,7 @@ class DevicePreview extends StatefulWidget {
     SystemSection(),
     AccessibilitySection(),
     SettingsSection(),
+    AppSection(),
   ];
 
   /// The currently selected device.
@@ -349,7 +352,7 @@ class DevicePreview extends StatefulWidget {
 }
 
 class _DevicePreviewState extends State<DevicePreview> {
-  bool _isToolPanelPopOverOpen = false;
+  bool _isDisplayingMenuPanel = false;
 
   late DevicePreviewStorage storage =
       widget.storage ?? DevicePreviewStorage.preferences();
@@ -384,8 +387,8 @@ class _DevicePreviewState extends State<DevicePreview> {
 
   @override
   void initState() {
-    _onScreenshot = StreamController<DeviceScreenshot>.broadcast();
     super.initState();
+    _onScreenshot = StreamController<DeviceScreenshot>.broadcast();
   }
 
   @override
@@ -423,6 +426,9 @@ class _DevicePreviewState extends State<DevicePreview> {
     final isDarkMode = context.select(
       (DevicePreviewStore store) => store.data.isDarkMode,
     );
+    final forceRefreshUI = context.select(
+      (DevicePreviewStore store) => store.data.forceRefreshUI,
+    );
 
     return Container(
       color: widget.backgroundColor ?? theme.canvasColor,
@@ -450,9 +456,10 @@ class _DevicePreviewState extends State<DevicePreview> {
                 child: MediaQuery(
                   data: DevicePreview._mediaQuery(context),
                   child: Builder(
-                    key: _appKey,
+                    key: forceRefreshUI ? UniqueKey() : _appKey,
                     builder: (context) {
                       final app = widget.builder(context);
+
                       assert(
                         isWidgetsAppUsingInheritedMediaQuery(app),
                         'Your widgets app should have its `useInheritedMediaQuery` property set to `true` in order to use DevicePreview.',
@@ -564,9 +571,11 @@ class _DevicePreviewState extends State<DevicePreview> {
                               slivers: widget.tools,
                               maxMenuHeight: constraints.maxHeight * 0.5,
                               scaffoldKey: scaffoldKey,
-                              onMenuVisibleChanged: (isVisible) => setState(() {
-                                _isToolPanelPopOverOpen = isVisible;
-                              }),
+                              isShowingMenu: (isShown) => setState(
+                                () {
+                                  _isDisplayingMenuPanel = isShown;
+                                },
+                              ),
                             ),
                           ),
                         if (isToolbarVisible && !isSmall)
@@ -612,7 +621,7 @@ class _DevicePreviewState extends State<DevicePreview> {
                         ),
                         Positioned.fill(
                           child: IgnorePointer(
-                            ignoring: !_isToolPanelPopOverOpen,
+                            ignoring: _isDisplayingMenuPanel == false,
                             child: Localizations(
                               locale: const Locale('en', 'US'),
                               delegates: const [
@@ -626,7 +635,9 @@ class _DevicePreviewState extends State<DevicePreview> {
                                     MaterialPageRoute(
                                       builder: (context) => Scaffold(
                                         key: scaffoldKey,
-                                        backgroundColor: Colors.transparent,
+                                        backgroundColor: _isDisplayingMenuPanel
+                                            ? Colors.black45
+                                            : Colors.transparent,
                                       ),
                                     ),
                                   ];

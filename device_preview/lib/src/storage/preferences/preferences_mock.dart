@@ -19,5 +19,12 @@ class PreferencesDevicePreviewStorage extends DevicePreviewStorage {
   Future<DevicePreviewData?> load() => Future<DevicePreviewData?>.value(null);
 
   @override
-  Future<void> save(DevicePreviewData data) => Future.value();
+  Future<void> save(DevicePreviewData data, {bool overwriteIfExists = false}) =>
+      Future.value();
+
+  @override
+  Future<void> clearAllDataExceptForRuntimeInspector() => Future.value();
+
+  @override
+  Future<void> resetToDefaultPreferences() => Future.value();
 }

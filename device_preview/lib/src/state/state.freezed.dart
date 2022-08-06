@@ -569,13 +569,13 @@ abstract class _InitializedDevicePreviewState implements DevicePreviewState {
       _$_InitializedDevicePreviewState;
 
   /// The list of all available devices.
-  List<DeviceInfo> get devices => throw _privateConstructorUsedError;
+  List<DeviceInfo> get devices;
 
   /// The list of all available locales.
-  List<NamedLocale> get locales => throw _privateConstructorUsedError;
+  List<NamedLocale> get locales;
 
   /// The user settings of the preview.
-  DevicePreviewData get data => throw _privateConstructorUsedError;
+  DevicePreviewData get data;
   @JsonKey(ignore: true)
   _$$_InitializedDevicePreviewStateCopyWith<_$_InitializedDevicePreviewState>
       get copyWith => throw _privateConstructorUsedError;
@@ -607,6 +607,10 @@ mixin _$DevicePreviewData {
 
   /// Indicate whether the mode is currently dark.
   bool get isDarkMode => throw _privateConstructorUsedError;
+
+  /// Force to rebuild the preview widget tree, including the actual app.
+  /// The value gets reset back to [false] right after the frame has been rebuilt.
+  bool get forceRefreshUI => throw _privateConstructorUsedError;
 
   /// Indicate whether texts are forced to bold.
   bool get boldText => throw _privateConstructorUsedError;
@@ -656,6 +660,7 @@ abstract class $DevicePreviewDataCopyWith<$Res> {
       String locale,
       bool isFrameVisible,
       bool isDarkMode,
+      bool forceRefreshUI,
       bool boldText,
       bool isVirtualKeyboardVisible,
       bool disableAnimations,
@@ -689,6 +694,7 @@ class _$DevicePreviewDataCopyWithImpl<$Res>
     Object? locale = freezed,
     Object? isFrameVisible = freezed,
     Object? isDarkMode = freezed,
+    Object? forceRefreshUI = freezed,
     Object? boldText = freezed,
     Object? isVirtualKeyboardVisible = freezed,
     Object? disableAnimations = freezed,
@@ -728,6 +734,10 @@ class _$DevicePreviewDataCopyWithImpl<$Res>
       isDarkMode: isDarkMode == freezed
           ? _value.isDarkMode
           : isDarkMode // ignore: cast_nullable_to_non_nullable
+              as bool,
+      forceRefreshUI: forceRefreshUI == freezed
+          ? _value.forceRefreshUI
+          : forceRefreshUI // ignore: cast_nullable_to_non_nullable
               as bool,
       boldText: boldText == freezed
           ? _value.boldText
@@ -810,6 +820,7 @@ abstract class _$$_DevicePreviewDataCopyWith<$Res>
       String locale,
       bool isFrameVisible,
       bool isDarkMode,
+      bool forceRefreshUI,
       bool boldText,
       bool isVirtualKeyboardVisible,
       bool disableAnimations,
@@ -847,6 +858,7 @@ class __$$_DevicePreviewDataCopyWithImpl<$Res>
     Object? locale = freezed,
     Object? isFrameVisible = freezed,
     Object? isDarkMode = freezed,
+    Object? forceRefreshUI = freezed,
     Object? boldText = freezed,
     Object? isVirtualKeyboardVisible = freezed,
     Object? disableAnimations = freezed,
@@ -886,6 +898,10 @@ class __$$_DevicePreviewDataCopyWithImpl<$Res>
       isDarkMode: isDarkMode == freezed
           ? _value.isDarkMode
           : isDarkMode // ignore: cast_nullable_to_non_nullable
+              as bool,
+      forceRefreshUI: forceRefreshUI == freezed
+          ? _value.forceRefreshUI
+          : forceRefreshUI // ignore: cast_nullable_to_non_nullable
               as bool,
       boldText: boldText == freezed
           ? _value.boldText
@@ -944,6 +960,7 @@ class _$_DevicePreviewData
       this.locale = 'en-US',
       this.isFrameVisible = true,
       this.isDarkMode = false,
+      this.forceRefreshUI = false,
       this.boldText = false,
       this.isVirtualKeyboardVisible = false,
       this.disableAnimations = false,
@@ -993,6 +1010,12 @@ class _$_DevicePreviewData
   @override
   @JsonKey()
   final bool isDarkMode;
+
+  /// Force to rebuild the preview widget tree, including the actual app.
+  /// The value gets reset back to [false] right after the frame has been rebuilt.
+  @override
+  @JsonKey()
+  final bool forceRefreshUI;
 
   /// Indicate whether texts are forced to bold.
   @override
@@ -1049,7 +1072,7 @@ class _$_DevicePreviewData
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'DevicePreviewData(isToolbarVisible: $isToolbarVisible, isEnabled: $isEnabled, orientation: $orientation, deviceIdentifier: $deviceIdentifier, locale: $locale, isFrameVisible: $isFrameVisible, isDarkMode: $isDarkMode, boldText: $boldText, isVirtualKeyboardVisible: $isVirtualKeyboardVisible, disableAnimations: $disableAnimations, highContrast: $highContrast, accessibleNavigation: $accessibleNavigation, invertColors: $invertColors, pluginData: $pluginData, textScaleFactor: $textScaleFactor, settings: $settings, customDevice: $customDevice)';
+    return 'DevicePreviewData(isToolbarVisible: $isToolbarVisible, isEnabled: $isEnabled, orientation: $orientation, deviceIdentifier: $deviceIdentifier, locale: $locale, isFrameVisible: $isFrameVisible, isDarkMode: $isDarkMode, forceRefreshUI: $forceRefreshUI, boldText: $boldText, isVirtualKeyboardVisible: $isVirtualKeyboardVisible, disableAnimations: $disableAnimations, highContrast: $highContrast, accessibleNavigation: $accessibleNavigation, invertColors: $invertColors, pluginData: $pluginData, textScaleFactor: $textScaleFactor, settings: $settings, customDevice: $customDevice)';
   }
 
   @override
@@ -1064,6 +1087,7 @@ class _$_DevicePreviewData
       ..add(DiagnosticsProperty('locale', locale))
       ..add(DiagnosticsProperty('isFrameVisible', isFrameVisible))
       ..add(DiagnosticsProperty('isDarkMode', isDarkMode))
+      ..add(DiagnosticsProperty('forceRefreshUI', forceRefreshUI))
       ..add(DiagnosticsProperty('boldText', boldText))
       ..add(DiagnosticsProperty(
           'isVirtualKeyboardVisible', isVirtualKeyboardVisible))
@@ -1094,6 +1118,8 @@ class _$_DevicePreviewData
                 .equals(other.isFrameVisible, isFrameVisible) &&
             const DeepCollectionEquality()
                 .equals(other.isDarkMode, isDarkMode) &&
+            const DeepCollectionEquality()
+                .equals(other.forceRefreshUI, forceRefreshUI) &&
             const DeepCollectionEquality().equals(other.boldText, boldText) &&
             const DeepCollectionEquality().equals(
                 other.isVirtualKeyboardVisible, isVirtualKeyboardVisible) &&
@@ -1125,6 +1151,7 @@ class _$_DevicePreviewData
       const DeepCollectionEquality().hash(locale),
       const DeepCollectionEquality().hash(isFrameVisible),
       const DeepCollectionEquality().hash(isDarkMode),
+      const DeepCollectionEquality().hash(forceRefreshUI),
       const DeepCollectionEquality().hash(boldText),
       const DeepCollectionEquality().hash(isVirtualKeyboardVisible),
       const DeepCollectionEquality().hash(disableAnimations),
@@ -1144,7 +1171,9 @@ class _$_DevicePreviewData
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_DevicePreviewDataToJson(this);
+    return _$$_DevicePreviewDataToJson(
+      this,
+    );
   }
 }
 
@@ -1157,6 +1186,7 @@ abstract class _DevicePreviewData implements DevicePreviewData {
       final String locale,
       final bool isFrameVisible,
       final bool isDarkMode,
+      final bool forceRefreshUI,
       final bool boldText,
       final bool isVirtualKeyboardVisible,
       final bool disableAnimations,
@@ -1174,70 +1204,74 @@ abstract class _DevicePreviewData implements DevicePreviewData {
   @override
 
   /// Indicate whether the toolbar is visible.
-  bool get isToolbarVisible => throw _privateConstructorUsedError;
+  bool get isToolbarVisible;
   @override
 
   /// Indicate whether the device simulation is enabled.
-  bool get isEnabled => throw _privateConstructorUsedError;
+  bool get isEnabled;
   @override
 
   /// The current orientation of the device
-  Orientation get orientation => throw _privateConstructorUsedError;
+  Orientation get orientation;
   @override
 
   /// The currently selected device.
-  String? get deviceIdentifier => throw _privateConstructorUsedError;
+  String? get deviceIdentifier;
   @override
 
   /// The currently selected device locale.
-  String get locale => throw _privateConstructorUsedError;
+  String get locale;
   @override
 
   /// Indicate whether the frame is currently visible.
-  bool get isFrameVisible => throw _privateConstructorUsedError;
+  bool get isFrameVisible;
   @override
 
   /// Indicate whether the mode is currently dark.
-  bool get isDarkMode => throw _privateConstructorUsedError;
+  bool get isDarkMode;
+  @override
+
+  /// Force to rebuild the preview widget tree, including the actual app.
+  /// The value gets reset back to [false] right after the frame has been rebuilt.
+  bool get forceRefreshUI;
   @override
 
   /// Indicate whether texts are forced to bold.
-  bool get boldText => throw _privateConstructorUsedError;
+  bool get boldText;
   @override
 
   /// Indicate whether the virtual keyboard is visible.
-  bool get isVirtualKeyboardVisible => throw _privateConstructorUsedError;
+  bool get isVirtualKeyboardVisible;
   @override
 
   /// Indicate whether animations are disabled.
-  bool get disableAnimations => throw _privateConstructorUsedError;
+  bool get disableAnimations;
   @override
 
   /// Indicate whether the highcontrast mode is activated.
-  bool get highContrast => throw _privateConstructorUsedError;
+  bool get highContrast;
   @override
 
   /// Indicate whether the navigation is in accessible mode.
-  bool get accessibleNavigation => throw _privateConstructorUsedError;
+  bool get accessibleNavigation;
   @override
 
   /// Indicate whether image colors are inverted.
-  bool get invertColors => throw _privateConstructorUsedError;
+  bool get invertColors;
   @override
 
   /// Indicate whether image colors are inverted.
-  Map<String, Map<String, dynamic>> get pluginData =>
-      throw _privateConstructorUsedError;
+  Map<String, Map<String, dynamic>> get pluginData;
   @override
 
   /// The current text scaling factor.
-  double get textScaleFactor => throw _privateConstructorUsedError;
+  double get textScaleFactor;
   @override
-  DevicePreviewSettingsData? get settings => throw _privateConstructorUsedError;
+  DevicePreviewSettingsData? get settings;
   @override
 
   /// The custom device configuration
-  CustomDeviceInfoData? get customDevice => throw _privateConstructorUsedError;
+  CustomDeviceInfoData? get customDevice;
   @override
   @JsonKey(ignore: true)
   _$$_DevicePreviewDataCopyWith<_$_DevicePreviewData> get copyWith =>
@@ -1546,7 +1580,9 @@ class _$_CustomDeviceInfoData
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_CustomDeviceInfoDataToJson(this);
+    return _$$_CustomDeviceInfoDataToJson(
+      this,
+    );
   }
 }
 
@@ -1568,38 +1604,38 @@ abstract class _CustomDeviceInfoData implements CustomDeviceInfoData {
   @override
 
   /// Identifier of the device.
-  String get id => throw _privateConstructorUsedError;
+  String get id;
   @override
 
   /// The device type.
-  DeviceType get type => throw _privateConstructorUsedError;
+  DeviceType get type;
   @override
 
   /// The device operating system.
-  TargetPlatform get platform => throw _privateConstructorUsedError;
+  TargetPlatform get platform;
   @override
 
   /// The display name of the device.
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override
 
   /// The safe areas when the device is in landscape orientation.
   @NullableEdgeInsetsJsonConverter()
-  EdgeInsets? get rotatedSafeAreas => throw _privateConstructorUsedError;
+  EdgeInsets? get rotatedSafeAreas;
   @override
 
   /// The safe areas when the device is in portrait orientation.
   @EdgeInsetsJsonConverter()
-  EdgeInsets get safeAreas => throw _privateConstructorUsedError;
+  EdgeInsets get safeAreas;
   @override
 
   /// The screen pixel density of the device.
-  double get pixelRatio => throw _privateConstructorUsedError;
+  double get pixelRatio;
   @override
 
   /// The size in points of the screen content.
   @SizeJsonConverter()
-  Size get screenSize => throw _privateConstructorUsedError;
+  Size get screenSize;
   @override
   @JsonKey(ignore: true)
   _$$_CustomDeviceInfoDataCopyWith<_$_CustomDeviceInfoData> get copyWith =>
@@ -1796,7 +1832,9 @@ class _$_DevicePreviewSettingsData
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_DevicePreviewSettingsDataToJson(this);
+    return _$$_DevicePreviewSettingsDataToJson(
+      this,
+    );
   }
 }
 
@@ -1813,18 +1851,15 @@ abstract class _DevicePreviewSettingsData implements DevicePreviewSettingsData {
   @override
 
   /// The toolbar position.
-  DevicePreviewToolBarPositionData get toolbarPosition =>
-      throw _privateConstructorUsedError;
+  DevicePreviewToolBarPositionData get toolbarPosition;
   @override
 
   /// The theme of the toolbar.
-  DevicePreviewToolBarThemeData get toolbarTheme =>
-      throw _privateConstructorUsedError;
+  DevicePreviewToolBarThemeData get toolbarTheme;
   @override
 
   /// The theme of the background.
-  DevicePreviewBackgroundThemeData get backgroundTheme =>
-      throw _privateConstructorUsedError;
+  DevicePreviewBackgroundThemeData get backgroundTheme;
   @override
   @JsonKey(ignore: true)
   _$$_DevicePreviewSettingsDataCopyWith<_$_DevicePreviewSettingsData>

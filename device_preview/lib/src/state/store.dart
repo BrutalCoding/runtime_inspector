@@ -41,7 +41,7 @@ class DevicePreviewStore extends ChangeNotifier {
   }
 
   /// The default custom device when never edited.
-  static const _defaultCustomDevice = CustomDeviceInfoData(
+  static const defaultCustomDevice = CustomDeviceInfoData(
     id: CustomDeviceIdentifier.identifier,
     name: 'Custom',
     pixelRatio: 2,
@@ -61,7 +61,7 @@ class DevicePreviewStore extends ChangeNotifier {
       notInitialized: () async {
         state = const DevicePreviewState.initializing();
 
-        final availaiableLocales = locales != null
+        final availableLocales = locales != null
             ? locales
                 .map(
                   (available) =>
@@ -77,7 +77,7 @@ class DevicePreviewStore extends ChangeNotifier {
         final defaultLocale = device_preview
             .basicLocaleListResolution(
               WidgetsBinding.instance.window.locales,
-              availaiableLocales.map((x) => x!.locale).toList(),
+              availableLocales.map((x) => x!.locale).toList(),
             )
             .toString();
 
@@ -92,16 +92,16 @@ class DevicePreviewStore extends ChangeNotifier {
 
         data ??= DevicePreviewData(
           locale: defaultLocale,
-          customDevice: _defaultCustomDevice,
+          customDevice: defaultCustomDevice,
         );
 
         if (data.customDevice == null) {
           data = data.copyWith(
-            customDevice: _defaultCustomDevice,
+            customDevice: defaultCustomDevice,
           );
         }
         state = DevicePreviewState.initialized(
-          locales: availaiableLocales.cast<NamedLocale>(),
+          locales: availableLocales.cast<NamedLocale>(),
           devices: devices!,
           data: data,
         );
@@ -128,7 +128,7 @@ extension DevicePreviewStateHelperExtensions on DevicePreviewStore {
     state = state.maybeMap(
       initialized: (state) {
         final result = state.copyWith(data: data);
-        unawaited(storage.save(data));
+        unawaited(storage.save(data, overwriteIfExists: false));
         return result;
       },
       orElse: () => throw Exception('Not initialized'),

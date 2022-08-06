@@ -1,8 +1,8 @@
-import 'package:device_preview/src/state/store.dart';
 import 'package:device_preview/src/views/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../device_preview.dart';
 import 'tool_panel/tool_panel.dart';
 
 /// The tool layout when the screen is small.
@@ -12,7 +12,7 @@ class DevicePreviewSmallLayout extends StatelessWidget {
     Key? key,
     required this.maxMenuHeight,
     required this.scaffoldKey,
-    required this.onMenuVisibleChanged,
+    required this.isShowingMenu,
     required this.slivers,
   }) : super(key: key);
 
@@ -23,7 +23,7 @@ class DevicePreviewSmallLayout extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   /// Invoked each time the menu is shown or hidden.
-  final ValueChanged<bool> onMenuVisibleChanged;
+  final ValueChanged<bool> isShowingMenu;
 
   /// The sections containing the tools.
   ///
@@ -41,7 +41,7 @@ class DevicePreviewSmallLayout extends StatelessWidget {
         top: false,
         child: _BottomToolbar(
           showPanel: () async {
-            onMenuVisibleChanged(true);
+            isShowingMenu(true);
             final sheet = scaffoldKey.currentState?.showBottomSheet(
               (context) => ClipRRect(
                 borderRadius: const BorderRadius.only(
@@ -49,6 +49,7 @@ class DevicePreviewSmallLayout extends StatelessWidget {
                   topRight: Radius.circular(10),
                 ),
                 child: ToolPanel(
+                  title: 'Runtime Inspector',
                   isModal: true,
                   slivers: slivers,
                 ),
@@ -59,7 +60,78 @@ class DevicePreviewSmallLayout extends StatelessWidget {
               backgroundColor: Colors.transparent,
             );
             await sheet?.closed;
-            onMenuVisibleChanged(false);
+            isShowingMenu(false);
+          },
+          onUserTap: () async {
+            isShowingMenu(true);
+            final sheetWantsToClose = scaffoldKey.currentState?.showBottomSheet(
+              (context) => ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+                child: ToolPanel(
+                  title: 'End User Experience',
+                  isModal: true,
+                  slivers: [
+                    ToolPanelSection(
+                      title: 'Experience app like your end-user',
+                      children: [
+                        // ListTile(
+                        //   title: const Text('Hide for 10 seconds'),
+                        //   subtitle: const Text(
+                        //     'Tap to view the app like an end user for 10 seconds.',
+                        //   ),
+                        //   onTap: () {
+                        //     if (Navigator.canPop(context)) {
+                        //       final state = context.read<DevicePreviewStore>();
+                        //       state.data = state.data.copyWith(
+                        //         isToolbarVisible: false,
+                        //         isEnabled: false,
+                        //       );
+                        //       Navigator.pop(context);
+                        //       isDisplayingRuntimeInspectorPanel(false);
+                        //       Future.delayed(
+                        //         const Duration(seconds: 10),
+                        //         () {
+                        //           DevicePreview.resetToDefaultSettings();
+                        //         },
+                        //       );
+                        //     }
+                        //   },
+                        // ),
+                        ListTile(
+                          title: const Text('Permanently'),
+                          subtitle: const Text(
+                            'Requires app to be re-installed to undo.',
+                          ),
+                          onTap: () {
+                            final state = context.read<DevicePreviewStore>();
+                            state.data = state.data.copyWith(
+                              isToolbarVisible: false,
+                              isEnabled: false,
+                            );
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        // const ListTile(
+                        //   title: Text('Hide until tapped'),
+                        //   subtitle: Text(
+                        //     'Tap anywhere on the screen to undo.',
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              constraints: BoxConstraints(
+                maxHeight: maxMenuHeight,
+              ),
+              backgroundColor: Colors.transparent,
+            );
+            await sheetWantsToClose?.closed;
+            isShowingMenu(false);
           },
         ),
       ),
@@ -71,9 +143,11 @@ class _BottomToolbar extends StatelessWidget {
   const _BottomToolbar({
     Key? key,
     required this.showPanel,
+    required this.onUserTap,
   }) : super(key: key);
 
   final VoidCallback showPanel;
+  final VoidCallback onUserTap;
 
   @override
   Widget build(BuildContext context) {
@@ -84,17 +158,42 @@ class _BottomToolbar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            onPressed: isEnabled ? showPanel : null,
-            icon: AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: isEnabled ? 1 : 0.5,
-              child: const Icon(
-                Icons.tune,
+          Row(
+            children: [
+              IconButton(
+                onPressed: isEnabled ? showPanel : null,
+                icon: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isEnabled ? 1 : 0.5,
+                  child: const Icon(
+                    Icons.tune,
+                  ),
+                ),
               ),
+              IconButton(
+                onPressed: !isEnabled ? onUserTap : null,
+                icon: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: !isEnabled ? 1 : 0.5,
+                  child: const Icon(
+                    Icons.person,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  'Runtime Inspector is ${isEnabled ? 'enabled' : 'disabled'}.',
+                ),
+                Text(
+                  'End User Experience ${isEnabled ? 'disabled' : 'available'}.',
+                )
+              ],
             ),
           ),
-          Text('Developer Tools is ${isEnabled ? 'enabled' : 'disabled'}'),
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: Switch(

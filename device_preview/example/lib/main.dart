@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'basic.dart';
 import 'custom_plugin.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     DevicePreview(
       enabled: true,
