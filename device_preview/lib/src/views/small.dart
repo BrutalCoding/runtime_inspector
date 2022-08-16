@@ -14,7 +14,11 @@ class DevicePreviewSmallLayout extends StatelessWidget {
     required this.scaffoldKey,
     required this.isShowingMenu,
     required this.slivers,
+    this.onToggle,
   }) : super(key: key);
+
+  /// Called whenever the toggle in the toolbar is pressed.
+  final void Function(bool isOn)? onToggle;
 
   /// The maximum modal menu height.
   final double maxMenuHeight;
@@ -40,6 +44,7 @@ class DevicePreviewSmallLayout extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: _BottomToolbar(
+          onToggle: onToggle,
           showPanel: () async {
             isShowingMenu(true);
             final sheet = scaffoldKey.currentState?.showBottomSheet(
@@ -144,10 +149,14 @@ class _BottomToolbar extends StatelessWidget {
     Key? key,
     required this.showPanel,
     required this.onUserTap,
+    this.onToggle,
   }) : super(key: key);
 
   final VoidCallback showPanel;
   final VoidCallback onUserTap;
+
+  /// Called whenever the toggle in the toolbar is pressed.
+  final void Function(bool isOn)? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +210,7 @@ class _BottomToolbar extends StatelessWidget {
               onChanged: (v) {
                 final state = context.read<DevicePreviewStore>();
                 state.data = state.data.copyWith(isEnabled: v);
+                onToggle?.call(v);
               },
             ),
           ),

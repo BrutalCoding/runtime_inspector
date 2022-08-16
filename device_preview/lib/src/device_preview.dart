@@ -62,7 +62,13 @@ class DevicePreview extends StatefulWidget {
     this.storage,
     this.enabled = true,
     this.backgroundColor,
+    this.onToggle,
   }) : super(key: key);
+
+  /// Called whenever the toggle in the toolbar is pressed.
+  /// Does not work if large toolbar is displayed, only the small one.
+  /// Returns [value] where true means the toolbar is visible.
+  final void Function(bool value)? onToggle;
 
   /// If not [enabled], the [child] is used directly.
   final bool enabled;
@@ -569,6 +575,7 @@ class _DevicePreviewState extends State<DevicePreview> {
                             left: 0,
                             child: DevicePreviewSmallLayout(
                               slivers: widget.tools,
+                              onToggle: widget.onToggle,
                               maxMenuHeight: constraints.maxHeight * 0.5,
                               scaffoldKey: scaffoldKey,
                               isShowingMenu: (isShown) => setState(
