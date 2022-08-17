@@ -177,6 +177,11 @@ class DevicePreview extends StatefulWidget {
     );
   }
 
+  /// Returns true if the toggle is switched on, meaning that
+  /// RunTime Inspector is enabled.
+  /// Returns [false] if not initialized yet or if toggle is not enabled.
+  static bool isRunTimeInspectorToggledOn = false;
+
   /// Indicates whether the device preview is currently enabled.
   static bool isEnabled(BuildContext context) {
     if (_isEnabled(context)) {
@@ -516,7 +521,7 @@ class _DevicePreviewState extends State<DevicePreview> {
         final isEnabled = context.select(
           (DevicePreviewStore store) => store.data.isEnabled,
         );
-
+        device_preview.DevicePreview.isRunTimeInspectorToggledOn = isEnabled;
         final toolbarTheme = context.select(
           (DevicePreviewStore store) => store.settings.toolbarTheme,
         );
