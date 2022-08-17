@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_preview/src/views/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +8,7 @@ import '../../device_preview.dart';
 import 'tool_panel/tool_panel.dart';
 
 /// The tool layout when the screen is small.
-class DevicePreviewSmallLayout extends StatelessWidget {
+class DevicePreviewSmallLayout extends StatefulWidget {
   /// Create a new panel from the given tools grouped as [slivers].
   const DevicePreviewSmallLayout({
     Key? key,
@@ -35,6 +37,12 @@ class DevicePreviewSmallLayout extends StatelessWidget {
   final List<Widget> slivers;
 
   @override
+  State<DevicePreviewSmallLayout> createState() =>
+      _DevicePreviewSmallLayoutState();
+}
+
+class _DevicePreviewSmallLayoutState extends State<DevicePreviewSmallLayout> {
+  @override
   Widget build(BuildContext context) {
     final toolbarTheme = context.select(
       (DevicePreviewStore store) => store.settings.toolbarTheme,
@@ -44,10 +52,10 @@ class DevicePreviewSmallLayout extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: _BottomToolbar(
-          onToggle: onToggle,
+          onToggle: widget.onToggle,
           showPanel: () async {
-            isShowingMenu(true);
-            final sheet = scaffoldKey.currentState?.showBottomSheet(
+            widget.isShowingMenu(true);
+            final sheet = widget.scaffoldKey.currentState?.showBottomSheet(
               (context) => ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
@@ -56,20 +64,21 @@ class DevicePreviewSmallLayout extends StatelessWidget {
                 child: ToolPanel(
                   title: 'Runtime Inspector',
                   isModal: true,
-                  slivers: slivers,
+                  slivers: widget.slivers,
                 ),
               ),
               constraints: BoxConstraints(
-                maxHeight: maxMenuHeight,
+                maxHeight: widget.maxMenuHeight,
               ),
               backgroundColor: Colors.transparent,
             );
             await sheet?.closed;
-            isShowingMenu(false);
+            widget.isShowingMenu(false);
           },
           onUserTap: () async {
-            isShowingMenu(true);
-            final sheetWantsToClose = scaffoldKey.currentState?.showBottomSheet(
+            widget.isShowingMenu(true);
+            final sheetWantsToClose =
+                widget.scaffoldKey.currentState?.showBottomSheet(
               (context) => ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
@@ -82,61 +91,145 @@ class DevicePreviewSmallLayout extends StatelessWidget {
                     ToolPanelSection(
                       title: 'Experience app like your end-user',
                       children: [
-                        // ListTile(
-                        //   title: const Text('Hide for 10 seconds'),
-                        //   subtitle: const Text(
-                        //     'Tap to view the app like an end user for 10 seconds.',
-                        //   ),
-                        //   onTap: () {
-                        //     if (Navigator.canPop(context)) {
-                        //       final state = context.read<DevicePreviewStore>();
-                        //       state.data = state.data.copyWith(
-                        //         isToolbarVisible: false,
-                        //         isEnabled: false,
-                        //       );
-                        //       Navigator.pop(context);
-                        //       isDisplayingRuntimeInspectorPanel(false);
-                        //       Future.delayed(
-                        //         const Duration(seconds: 10),
-                        //         () {
-                        //           DevicePreview.resetToDefaultSettings();
-                        //         },
-                        //       );
-                        //     }
-                        //   },
-                        // ),
+                        const ListTile(
+                          subtitle: Text(
+                            'Tapping on any of these options will present the '
+                            'app without the toolbar. '
+                            'This should portray the app the same way as if '
+                            'you were using the app normally as a end-user.',
+                          ),
+                        ),
                         ListTile(
-                          title: const Text('Permanently'),
+                          title: const Text('30 seconds'),
                           subtitle: const Text(
-                            'Requires app to be re-installed to undo.',
+                            'Tap to hide for 30 seconds',
                           ),
                           onTap: () {
                             final state = context.read<DevicePreviewStore>();
                             state.data = state.data.copyWith(
                               isToolbarVisible: false,
-                              isEnabled: false,
                             );
-                            Navigator.of(context).pop();
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
+                            Future.delayed(const Duration(seconds: 30), () {
+                              state.data = state.data.copyWith(
+                                isToolbarVisible: true,
+                              );
+                            });
                           },
                         ),
-                        // const ListTile(
-                        //   title: Text('Hide until tapped'),
-                        //   subtitle: Text(
-                        //     'Tap anywhere on the screen to undo.',
-                        //   ),
-                        // ),
+                        ListTile(
+                          title: const Text('Until specific time'),
+                          subtitle: const Text(
+                            'Tap to hide until a specified time.',
+                          ),
+                          onTap: () async {
+                            // Use timepicker to get the duration.
+                            final timeNow = TimeOfDay.now();
+                            final TimeOfDay? duration = await showTimePicker(
+                              context: context,
+                              initialTime: timeNow,
+                              confirmText: 'Yes, hide until this time.',
+                              cancelText: 'Cancel',
+                            );
+
+                            // Return if nothing has been selected.
+                            if (!mounted ||
+                                duration == null ||
+                                timeNow == duration) return;
+
+                            // Calculate difference in time between now and picked time
+                            final diff = DateTime(
+                              DateTime.now().year,
+                              DateTime.now().month,
+                              DateTime.now().day,
+                              duration.hour,
+                              duration.minute,
+                            ).difference(DateTime.now());
+
+                            // Continue only if the difference is positive.
+                            if (diff.isNegative == false) {
+                              final state = context.read<DevicePreviewStore>();
+
+                              // Hide the menu
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+
+                              // Hide the toolbar for the duration of the time.
+                              state.data = state.data.copyWith(
+                                isToolbarVisible: false,
+                              );
+
+                              Future.delayed(
+                                Duration(seconds: diff.inSeconds),
+                                () {
+                                  state.data = state.data.copyWith(
+                                    isToolbarVisible: true,
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        ),
+                        ListTile(
+                          title: const Text('Permanent'),
+                          subtitle: const Text(
+                            'Tap to hide until re-install.',
+                          ),
+                          onTap: () async {
+                            // Are you sure dialog
+                            final bool? userHasConfirmed =
+                                await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Are you sure?'),
+                                content: const Text(
+                                  'This will hide the toolbar permanently. The only way to show it again is to re-install the app or clearing the app cache/data on Android.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                  TextButton(
+                                    child: const Text('Yes'),
+                                    onPressed: () {
+                                      final state =
+                                          context.read<DevicePreviewStore>();
+                                      state.data = state.data.copyWith(
+                                        isToolbarVisible: false,
+                                        isEnabled: false,
+                                      );
+
+                                      // Hide this dialog and menu behind.
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            // Hide menu if user has confirmed.
+                            if (userHasConfirmed == true && mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
               constraints: BoxConstraints(
-                maxHeight: maxMenuHeight,
+                maxHeight: widget.maxMenuHeight,
               ),
               backgroundColor: Colors.transparent,
             );
             await sheetWantsToClose?.closed;
-            isShowingMenu(false);
+            widget.isShowingMenu(false);
           },
         ),
       ),
