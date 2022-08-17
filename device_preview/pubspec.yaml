@@ -1,5 +1,5 @@
 name: device_preview
-version: 1.0.4
+version: 1.0.5
 description: Inspect your Flutter app on the fly!
 homepage: https://github.com/BrutalCoding/runtime_inspector
 
