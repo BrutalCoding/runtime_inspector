@@ -570,8 +570,15 @@ class _DevicePreviewState extends State<DevicePreview> {
                             ? ToolPanel.panelWidth - 10
                             : (64 + mediaQuery.padding.right))
                         : 0;
-                    final double bottomPanelOffset =
-                        isSmall ? mediaQuery.padding.bottom + 52 : 0;
+
+                    double bottomPanelOffset = 0;
+
+                    // If no soft keyboard is visible on small devices,
+                    // the bottom panel will have an offset.
+                    if (isSmall && mediaQuery.viewInsets.bottom == 0) {
+                      bottomPanelOffset = mediaQuery.padding.bottom + 52;
+                    }
+
                     return Stack(
                       children: <Widget>[
                         if (isToolbarVisible && isSmall)
